@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenangan - Yearbook MA Ma'arif Ketanggungan</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        .memory-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .memory-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .admin-controls {
+            margin-left: auto;
+        }
+        .logged-in .admin-controls {
+            display: flex !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-blur"></div>
+    
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <div class="logo">Yearbook XII IPA 1</div>
+            <div class="nav-links">
+                <a href="index.html">Beranda</a>
+                <a href="teachers.html">Guru</a>
+                <a href="memories.html" class="active">Kenangan</a>
+                <a href="building.html">Bangunan</a>
+                <a href="developer.html">Pengembang</a>
+                <button id="loginBtn" class="glass-btn small">Admin</button>
+                <button id="logoutBtn" class="glass-btn small" style="display: none;">Logout</button>
+            </div>
+            <div class="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="page-header">
+            <h1>Kenangan Kami</h1>
+            <p>Momen berharga selama tiga tahun kebersamaan</p>
+        </section>
+
+        <section class="memories-container">
+            <div class="memories-controls">
+                <button id="filterAll" class="glass-btn small active">Semua</button>
+                <button id="filterYear1" class="glass-btn small">Tahun Pertama</button>
+                <button id="filterYear2" class="glass-btn small">Tahun Kedua</button>
+                <button id="filterYear3" class="glass-btn small">Tahun Ketiga</button>
+                <div class="admin-controls" style="display: none;">
+                    <button id="addMemory" class="glass-btn small">Tambah Kenangan</button>
+                </div>
+            </div>
+
+            <div class="memories-grid" id="memoriesGrid">
+                <!-- Dynamic content -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="glass-footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h4>Yearbook XII IPA 1</h4>
+                <p>MA Ma'arif Ketanggungan </p>
+                <p>Tahun Ajaran 2024/2025</p>
+            </div>
+            <div class="footer-links">
+                <a href="index.html">Beranda</a>
+                <a href="teachers.html">Guru</a>
+                <a href="memories.html">Kenangan</a>
+                <a href="building.html">Bangunan</a>
+                <a href="developer.html">Pengembang</a>
+            </div>
+            <div class="footer-credits">
+                <p>Dikembangkan oleh A. Shohibul Ulum</p>
+                <p>XII IPA 1</p>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>&copy; 2025 Yearbook XII IPA 1. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close">&times;</span>
+            <h2>Login Admin</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="glass-btn">Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Memory Modal -->
+    <div id="memoryModal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close">&times;</span>
+            <h2 id="memoryModalTitle">Tambah Kenangan</h2>
+            <form id="memoryForm">
+                <input type="hidden" id="memoryId">
+                <div class="form-group">
+                    <label for="memoryDate">Tanggal</label>
+                    <input type="date" id="memoryDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="memoryTitle">Judul</label>
+                    <input type="text" id="memoryTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="memoryCaption">Caption/Quotes</label>
+                    <textarea id="memoryCaption" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="memoryImage">Gambar</label>
+                    <input type="file" id="memoryImage" accept="image/*">
+                    <div id="currentImageContainer" style="display: none; margin-top: 10px;">
+                        <p>Gambar saat ini:</p>
+                        <img id="currentImage" src="" style="max-width: 100px; max-height: 100px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="memoryYear">Tahun</label>
+                    <select id="memoryYear" required>
+                        <option value="1">Tahun Pertama</option>
+                        <option value="2">Tahun Kedua</option>
+                        <option value="3">Tahun Ketiga</option>
+                    </select>
+                </div>
+                <button type="submit" class="glass-btn" id="memorySubmitBtn">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Sample memories data
+        let memories = [
+            {
+                id: 1,
+                date: "2021-07-15",
+                title: "Hari Pertama Sekolah",
+                caption: "Mengawali perjalanan kami di MA Ma'arif Ketanggungan",
+                image: "https://via.placeholder.com/400x300",
+                year: 1
+            },
+            {
+                id: 2,
+                date: "2022-03-20",
+                title: "Kegiatan Outbound",
+                caption: "Belajar teamwork dan kekompakan di alam terbuka",
+                image: "https://via.placeholder.com/400x300",
+                year: 2
+            },
+            {
+                id: 3,
+                date: "2023-09-10",
+                title: "Persiapan Ujian",
+                caption: "Belajar bersama untuk menghadapi ujian akhir",
+                image: "https://via.placeholder.com/400x300",
+                year: 3
+            }
+        ];
+
+        // Render memories
+        function renderMemories() {
+            const memoriesGrid = document.getElementById('memoriesGrid');
+            memoriesGrid.innerHTML = '';
+            
+            memories.forEach(memory => {
+                const memoryCard = document.createElement('div');
+                memoryCard.className = 'memory-card glass-card';
+                memoryCard.dataset.year = memory.year;
+                memoryCard.dataset.id = memory.id;
+                
+                memoryCard.innerHTML = `
+                    <div class="memory-image">
+                        <img src="${memory.image}" alt="${memory.title}">
+                    </div>
+                    <div class="memory-content">
+                        <div class="memory-date">${formatDate(memory.date)}</div>
+                        <h3>${memory.title}</h3>
+                        <p class="memory-caption">${memory.caption}</p>
+                        <div class="memory-year">Tahun ${memory.year}</div>
+                        <div class="memory-actions" style="display: none;">
+                            <button class="edit-memory glass-btn small">Edit</button>
+                            <button class="delete-memory glass-btn small">Hapus</button>
+                        </div>
+                    </div>
+                `;
+                
+                memoriesGrid.appendChild(memoryCard);
+            });
+
+            // Show/hide edit/delete buttons based on login status
+            toggleMemoryActions();
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        function filterMemories(year) {
+            const memories = document.querySelectorAll('.memory-card');
+            
+            memories.forEach(memory => {
+                if (year === 'all' || memory.dataset.year == year) {
+                    memory.style.display = 'block';
+                } else {
+                    memory.style.display = 'none';
+                }
+            });
+        }
+
+        function setActiveFilter(button) {
+            document.querySelectorAll('.memories-controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+        }
+
+        function toggleMemoryActions() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+            const actions = document.querySelectorAll('.memory-actions');
+            
+            actions.forEach(action => {
+                action.style.display = isLoggedIn ? 'flex' : 'none';
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMemories();
+
+            // Filter functionality
+            document.getElementById('filterAll').addEventListener('click', function() {
+                filterMemories('all');
+                setActiveFilter(this);
+            });
+
+            document.getElementById('filterYear1').addEventListener('click', function() {
+                filterMemories(1);
+                setActiveFilter(this);
+            });
+
+            document.getElementById('filterYear2').addEventListener('click', function() {
+                filterMemories(2);
+                setActiveFilter(this);
+            });
+
+            document.getElementById('filterYear3').addEventListener('click', function() {
+                filterMemories(3);
+                setActiveFilter(this);
+            });
+
+            // Handle edit and delete buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('edit-memory')) {
+                    const memoryCard = e.target.closest('.memory-card');
+                    const memoryId = parseInt(memoryCard.dataset.id);
+                    const memory = memories.find(m => m.id === memoryId);
+                    
+                    if (memory) {
+                        document.getElementById('memoryModalTitle').textContent = 'Edit Kenangan';
+                        document.getElementById('memoryId').value = memory.id;
+                        document.getElementById('memoryDate').value = memory.date;
+                        document.getElementById('memoryTitle').value = memory.title;
+                        document.getElementById('memoryCaption').value = memory.caption;
+                        document.getElementById('memoryYear').value = memory.year;
+                        
+                        // Show current image
+                        document.getElementById('currentImageContainer').style.display = 'block';
+                        document.getElementById('currentImage').src = memory.image;
+                        
+                        const memoryModal = document.getElementById('memoryModal');
+                        memoryModal.style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+                
+                if (e.target.classList.contains('delete-memory')) {
+                    if (confirm('Apakah Anda yakin ingin menghapus kenangan ini?')) {
+                        const memoryCard = e.target.closest('.memory-card');
+                        const memoryId = parseInt(memoryCard.dataset.id);
+                        
+                        // Remove from array
+                        memories = memories.filter(m => m.id !== memoryId);
+                        
+                        // Re-render
+                        renderMemories();
+                    }
+                }
+            });
+
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                sessionStorage.removeItem('isLoggedIn');
+                document.body.classList.remove('logged-in');
+                toggleMemoryActions();
+                this.style.display = 'none';
+                document.getElementById('loginBtn').style.display = 'inline-block';
+            });
+        });
+    </script>
+</body>
+</html>

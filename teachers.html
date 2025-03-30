@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Guru - Yearbook MA Ma'arif Ketanggungan</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+    <div class="background-blur"></div>
+    
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <div class="logo">Yearbook XII IPA 1</div>
+            <div class="nav-links">
+                <a href="index.html">Beranda</a>
+                <a href="teachers.html" class="active">Guru</a>
+                <a href="memories.html">Kenangan</a>
+                <a href="building.html">Bangunan</a>
+                <a href="developer.html">Pengembang</a>
+                <button id="loginBtn" class="glass-btn small">Admin</button>
+            </div>
+            <div class="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="page-header">
+            <h1>Daftar Guru</h1>
+            <p>Para pendidik yang telah membimbing kami selama tiga tahun</p>
+        </section>
+
+        <section class="teachers-container">
+            <!-- Teachers will be loaded from JavaScript -->
+            <div class="teachers-grid" id="teachersGrid">
+                <!-- Dynamic content -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="glass-footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h4>Yearbook XII IPA 1</h4>
+                <p>MA Ma'arif Ketanggungan </p>
+                <p>Tahun Ajaran 2024/2025</p>
+            </div>
+            <div class="footer-links">
+                <a href="index.html">Beranda</a>
+                <a href="teachers.html">Guru</a>
+                <a href="memories.html">Kenangan</a>
+                <a href="building.html">Bangunan</a>
+                <a href="developer.html">Pengembang</a>
+            </div>
+            <div class="footer-credits">
+                <p>Dikembangkan oleh A. Shohibul Ulum</p>
+                <p>XII IPA 1</p>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>&copy; 2025 Yearbook XII IPA 1. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close">&times;</span>
+            <h2>Login Admin</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="glass-btn">Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Teachers data
+        const teachers = [
+            { name: "Drs. Sudarso, M.Pd.I.", position: "Kepala sekolah", subject: "" },
+            { name: "Junirah, S.E.", position: "", subject: "" },
+            { name: "Linda Ismail, S.Pd.", position: "", subject: "" },
+            { name: "H. Sa'adulloh, S.Ag., S.Pd.", position: "", subject: "" },
+            { name: "Anni Nurbanah, S.Pd.I. Gr.", position: "", subject: "" },
+            { name: "Dini Ma'rifah, S.Hum.", position: "", subject: "" },
+            { name: "Abdul Munif", position: "", subject: "" },
+            { name: "Elok Istibsyaroh, S.Ag.", position: "", subject: "" },
+            { name: "Ghina Aennun Najah, S.Pd.", position: "", subject: "" },
+            { name: "Ananda Gagah Prakoso, S.Pd.", position: "", subject: "" },
+            { name: "Irawati, S.Pd.", position: "", subject: "" },
+            { name: "Juju Juhansyah, S.Pd.I.", position: "", subject: "" },
+            { name: "Ahmad Ma'daruddin, S.Psi.I.", position: "", subject: "" },
+            { name: "Lina Prihatin, S.Pd.I.", position: "", subject: "" },
+            { name: "Ahmad Ma'ruf Amin, S.Pd.", position: "", subject: "" },
+            { name: "M. Fatkhusyarif, S.Pd.I. Gr.", position: "", subject: "" },
+            { name: "Media Anggraeni, S.Pd.", position: "", subject: "" },
+            { name: "Nur Hamidah, S.E.", position: "", subject: "" },
+            { name: "Siti Nurnajah, S.Pd.", position: "", subject: "" },
+            { name: "Siti Suryani, S.Pd.", position: "", subject: "" },
+            { name: "Susi Yulianti, S.Pd.", position: "", subject: "" },
+            { name: "Tiyas Budi Prasetiyo, S.Pd.", position: "", subject: "" },
+            { name: "Uswatun Hasanah, S.Pd.I. Gr.", position: "", subject: "" }
+        ];
+
+        // Render teachers
+        document.addEventListener('DOMContentLoaded', function() {
+            const teachersGrid = document.getElementById('teachersGrid');
+            
+            teachers.forEach(teacher => {
+                const teacherCard = document.createElement('div');
+                teacherCard.className = 'teacher-card glass-card';
+                
+                teacherCard.innerHTML = `
+                    <h3>${teacher.name}</h3>
+                    ${teacher.position ? `<p class="position">${teacher.position}</p>` : ''}
+                    ${teacher.subject ? `<p class="subject">${teacher.subject}</p>` : ''}
+                `;
+                
+                teachersGrid.appendChild(teacherCard);
+            });
+        });
+    </script>
+</body>
+</html>

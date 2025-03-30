@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengembang - Yearbook MA Ma'arif</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+    <div class="background-blur"></div>
+    
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <div class="logo">Yearbook XII IPA 1</div>
+            <div class="nav-links">
+                <a href="index.html">Beranda</a>
+                <a href="teachers.html">Guru</a>
+                <a href="memories.html">Kenangan</a>
+                <a href="building.html">Bangunan</a>
+                <a href="developer.html" class="active">Pengembang</a>
+                <button id="loginBtn" class="glass-btn small">Admin</button>
+            </div>
+            <div class="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="page-header">
+            <h1>Pengembang</h1>
+            <p>Terima kasih atas kebersamaan selama tiga tahun ini</p>
+        </section>
+
+        <section class="developer-container">
+            <div class="developer-card glass-card">
+                <div class="developer-image">
+                    <img src="https://raw.githubusercontent.com/mamketa/ma-assets/refs/heads/main/images/developer.jpg" alt="A. Shohibul Ulum">
+                </div>
+                <div class="developer-info">
+                    <h2>A. Shohibul Ulum</h2>
+                    <p class="developer-class">XII IPA 1</p>
+                    <p class="developer-role">Web Developer</p>
+                    
+                    <div class="developer-contact">
+                        <h3>Kontak Skolah</h3>
+                        <p><strong>Email Sekolah:</strong> mamaarifktg@yahoo.com</p>
+                        <p><strong>No. Admin Sekolah:</strong> +628976724303</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="thank-you-message glass-card">
+                <h2>Terima Kasih</h2>
+                <p>"Atas tiga tahun kebersamaan ini, ribuan kenangan terukir indah. Setiap tawa, setiap air mata, setiap perjuangan bersama telah menjadi bagian dari cerita hidup kami. Terima kasih untuk semua guru yang telah membimbing, teman-teman yang telah menemani, dan sekolah yang telah menjadi rumah kedua kami. Kebersamaan ini takkan pernah terlupakan dan akan selalu menjadi bagian terindah dalam perjalanan hidup kami."</p>
+                <p>- Kelas XII IPA 1 -</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="glass-footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h4>Yearbook XII IPA 1</h4>
+                <p>MA Ma'arif Ketanggungan</p>
+                <p>Tahun Ajaran 2024/2025</p>
+            </div>
+            <div class="footer-links">
+                <a href="index.html">Beranda</a>
+                <a href="teachers.html">Guru</a>
+                <a href="memories.html">Kenangan</a>
+                <a href="building.html">Bangunan</a>
+                <a href="developer.html">Pengembang</a>
+            </div>
+            <div class="footer-credits">
+                <p>Dikembangkan oleh A. Shohibul Ulum</p>
+                <p>XII IPA 1</p>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <p>&copy; 2025 Yearbook XII IPA 1. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close">&times;</span>
+            <h2>Login Admin</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="glass-btn">Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

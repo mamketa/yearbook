@@ -1,0 +1,38 @@
+/* Auth Modal Specific Styles */
+#loginModal .modal-content {
+    padding: 30px;
+}
+
+#loginModal h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--light-text);
+}
+
+#loginForm .form-group {
+    margin-bottom: 20px;
+}
+
+#loginForm input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--light-text);
+    font-family: 'Nunito', sans-serif;
+}
+
+#loginForm button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Admin Controls */
+.admin-controls {
+    display: none; /* Hidden by default, shown when logged in */
+}
+
+.logged-in .admin-controls {
+    display: flex;
+}
