@@ -173,21 +173,21 @@
                     </div>
                 `;
                 
-                // Add delete functionality
-                const deleteBtn = galleryItem.querySelector('.delete-gallery-item');
-                deleteBtn.addEventListener('click', function() {
-                    if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
-                        galleryItem.remove();
-                    }
-                });
-                
                 buildingGallery.appendChild(galleryItem);
             });
 
-            // Show delete buttons if admin is logged in
-            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            // Add delete functionality if logged in
+            if (sessionStorage.getItem('isLoggedIn')) {
                 document.querySelectorAll('.gallery-actions').forEach(action => {
                     action.style.display = 'block';
+                });
+                
+                document.querySelectorAll('.delete-gallery-item').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
+                            this.closest('.gallery-item').remove();
+                        }
+                    });
                 });
             }
         });
