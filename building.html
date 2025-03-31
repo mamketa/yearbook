@@ -145,19 +145,28 @@
     <script src="js/admin.js"></script>
     <script src="js/main.js"></script>
     <script>
-        // Store building data
-        let buildingData = {
-            mainImage: "https://via.placeholder.com/800x500",
-            description: "Sekolah kami yang tercinta dengan fasilitas lengkap dan lingkungan yang asri, tempat kami menghabiskan tiga tahun penuh makna dalam menuntut ilmu dan mengembangkan diri.",
-            gallery: [
-                { image: "https://via.placeholder.com/300x200", caption: "Gerbang Sekolah" },
-                { image: "https://via.placeholder.com/300x200", caption: "Perpustakaan" },
-                { image: "https://via.placeholder.com/300x200", caption: "Lapangan Olahraga" },
-                { image: "https://via.placeholder.com/300x200", caption: "Laboratorium IPA" },
-                { image: "https://via.placeholder.com/300x200", caption: "Aula Serbaguna" },
-                { image: "https://via.placeholder.com/300x200", caption: "Kantin Sekolah" }
-            ]
-        };
+        // Load/save functions for building data
+        function loadBuildingData() {
+            const saved = localStorage.getItem('yearbookBuildingData');
+            return saved ? JSON.parse(saved) : {
+                mainImage: "https://via.placeholder.com/800x500",
+                description: "Sekolah kami yang tercinta dengan fasilitas lengkap dan lingkungan yang asri, tempat kami menghabiskan tiga tahun penuh makna dalam menuntut ilmu dan mengembangkan diri.",
+                gallery: [
+                    { image: "https://via.placeholder.com/300x200", caption: "Gerbang Sekolah" },
+                    { image: "https://via.placeholder.com/300x200", caption: "Perpustakaan" },
+                    { image: "https://via.placeholder.com/300x200", caption: "Lapangan Olahraga" },
+                    { image: "https://via.placeholder.com/300x200", caption: "Laboratorium IPA" },
+                    { image: "https://via.placeholder.com/300x200", caption: "Aula Serbaguna" },
+                    { image: "https://via.placeholder.com/300x200", caption: "Kantin Sekolah" }
+                ]
+            };
+        }
+
+        function saveBuildingData() {
+            localStorage.setItem('yearbookBuildingData', JSON.stringify(buildingData));
+        }
+
+        let buildingData = loadBuildingData();
 
         // Render building data
         function renderBuildingData() {
@@ -190,6 +199,7 @@
                 deleteBtn.addEventListener('click', function() {
                     if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
                         buildingData.gallery.splice(index, 1);
+                        saveBuildingData();
                         renderBuildingData();
                     }
                 });
@@ -241,6 +251,7 @@
             buildingForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 buildingData.description = document.getElementById('buildingDesc').value;
+                saveBuildingData();
                 renderBuildingData();
                 editBuildingModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
@@ -258,6 +269,7 @@
                         const reader = new FileReader();
                         reader.onload = function(event) {
                             buildingData.mainImage = event.target.result;
+                            saveBuildingData();
                             renderBuildingData();
                         };
                         reader.readAsDataURL(file);
@@ -265,6 +277,15 @@
                 };
                 
                 input.click();
+            });
+            
+            // Add gallery image button
+            document.getElementById('addGalleryImage').addEventListener('click', function() {
+                document.getElementById('galleryModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                document.getElementById('galleryForm').reset();
+                delete document.getElementById('galleryForm').dataset.editingIndex;
+                document.getElementById('galleryImage').required = true;
             });
             
             // Add/edit gallery image
@@ -292,6 +313,7 @@
                             });
                         }
                         
+                        saveBuildingData();
                         renderBuildingData();
                         document.getElementById('galleryModal').style.display = 'none';
                         document.body.style.overflow = 'auto';
