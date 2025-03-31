@@ -251,6 +251,12 @@
             actions.forEach(action => {
                 action.style.display = isLoggedIn ? 'flex' : 'none';
             });
+
+            // Toggle admin controls
+            const adminControls = document.querySelector('.admin-controls');
+            if (adminControls) {
+                adminControls.style.display = isLoggedIn ? 'flex' : 'none';
+            }
         }
 
         // Initialize the page
@@ -276,6 +282,85 @@
             document.getElementById('filterYear3').addEventListener('click', function() {
                 filterMemories(3);
                 setActiveFilter(this);
+            });
+
+            // Handle add memory button
+            document.getElementById('addMemory').addEventListener('click', function() {
+                document.getElementById('memoryModalTitle').textContent = 'Tambah Kenangan';
+                document.getElementById('memoryForm').reset();
+                document.getElementById('currentImageContainer').style.display = 'none';
+                document.getElementById('memoryModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+
+            // Handle memory form submission
+            document.getElementById('memoryForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const memoryId = document.getElementById('memoryId').value;
+                const memoryDate = document.getElementById('memoryDate').value;
+                const memoryTitle = document.getElementById('memoryTitle').value;
+                const memoryCaption = document.getElementById('memoryCaption').value;
+                const memoryYear = document.getElementById('memoryYear').value;
+                const memoryImageInput = document.getElementById('memoryImage');
+                
+                if (memoryId) {
+                    // Edit existing memory
+                    const memoryIndex = memories.findIndex(m => m.id === parseInt(memoryId));
+                    if (memoryIndex !== -1) {
+                        memories[memoryIndex].date = memoryDate;
+                        memories[memoryIndex].title = memoryTitle;
+                        memories[memoryIndex].caption = memoryCaption;
+                        memories[memoryIndex].year = parseInt(memoryYear);
+                        
+                        if (memoryImageInput.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                memories[memoryIndex].image = e.target.result;
+                                renderMemories();
+                            };
+                            reader.readAsDataURL(memoryImageInput.files[0]);
+                        } else {
+                            renderMemories();
+                        }
+                    }
+                } else {
+                    // Add new memory
+                    const newId = memories.length > 0 ? Math.max(...memories.map(m => m.id)) + 1 : 1;
+                    
+                    if (memoryImageInput.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const newMemory = {
+                                id: newId,
+                                date: memoryDate,
+                                title: memoryTitle,
+                                caption: memoryCaption,
+                                image: e.target.result,
+                                year: parseInt(memoryYear)
+                            };
+                            memories.push(newMemory);
+                            renderMemories();
+                        };
+                        reader.readAsDataURL(memoryImageInput.files[0]);
+                    } else {
+                        // Default image if no image is selected
+                        const newMemory = {
+                            id: newId,
+                            date: memoryDate,
+                            title: memoryTitle,
+                            caption: memoryCaption,
+                            image: "https://via.placeholder.com/400x300",
+                            year: parseInt(memoryYear)
+                        };
+                        memories.push(newMemory);
+                        renderMemories();
+                    }
+                }
+                
+                // Close modal
+                document.getElementById('memoryModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
             });
 
             // Handle edit and delete buttons
@@ -314,6 +399,21 @@
                         // Re-render
                         renderMemories();
                     }
+                }
+            });
+
+            // Close modal when clicking X or outside
+            document.querySelectorAll('.modal .close').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                });
+            });
+
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                    document.body.style.overflow = 'auto';
                 }
             });
 
