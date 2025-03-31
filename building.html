@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bangunan Sekolah - Yearbook MA Ma'arif Ketanggungan</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap">
     <link rel="stylesheet" href="css/style.css">
@@ -22,6 +21,7 @@
                 <a href="building.html" class="active">Bangunan</a>
                 <a href="developer.html">Pengembang</a>
                 <button id="loginBtn" class="glass-btn small">Admin</button>
+                <button id="logoutBtn" class="glass-btn small" style="display: none;">Logout</button>
             </div>
             <div class="mobile-menu">
                 <span></span>
@@ -168,10 +168,28 @@
                         <img src="${image.image}" alt="${image.caption}">
                     </div>
                     ${image.caption ? `<p class="gallery-caption">${image.caption}</p>` : ''}
+                    <div class="gallery-actions" style="display: none;">
+                        <button class="delete-gallery-item glass-btn small danger">Hapus</button>
+                    </div>
                 `;
+                
+                // Add delete functionality
+                const deleteBtn = galleryItem.querySelector('.delete-gallery-item');
+                deleteBtn.addEventListener('click', function() {
+                    if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
+                        galleryItem.remove();
+                    }
+                });
                 
                 buildingGallery.appendChild(galleryItem);
             });
+
+            // Show delete buttons if admin is logged in
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                document.querySelectorAll('.gallery-actions').forEach(action => {
+                    action.style.display = 'block';
+                });
+            }
         });
     </script>
 </body>
