@@ -3,22 +3,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const loginModal = document.getElementById('loginModal');
-    const closeBtn = document.querySelector('#loginModal .close');
+    const closeBtn = document.querySelector('.close');
     const loginForm = document.getElementById('loginForm');
     
     // Check login status
-    const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
-    if (isLoggedIn) {
-        document.body.classList.add('logged-in');
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'inline-block';
-    }
+    checkLoginStatus();
     
     // Show login modal
     if (loginBtn) {
         loginBtn.addEventListener('click', function() {
             loginModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+        });
+    }
+    
+    // Logout functionality
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            sessionStorage.removeItem('isLoggedIn');
+            checkLoginStatus();
+            alert('Anda telah logout.');
         });
     }
     
@@ -50,17 +54,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (username === 'admin' && password === 'admin123') {
                 // Successful login
                 sessionStorage.setItem('isLoggedIn', 'true');
-                document.body.classList.add('logged-in');
+                checkLoginStatus();
                 loginModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
-                
-                if (loginBtn) loginBtn.style.display = 'none';
-                if (logoutBtn) logoutBtn.style.display = 'inline-block';
-                
-                // Refresh memory actions visibility
-                const toggleMemoryActions = window.toggleMemoryActions;
-                if (toggleMemoryActions) toggleMemoryActions();
-                
                 alert('Login berhasil! Sekarang Anda dapat mengedit konten.');
             } else {
                 alert('Username atau password salah!');
@@ -68,3 +64,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function checkLoginStatus() {
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    const adminControls = document.querySelectorAll('.admin-controls');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    if (isLoggedIn === 'true') {
+        // Show admin controls
+        document.body.classList.add('logged-in');
+        adminControls.forEach(control => {
+            control.style.display = 'block';
+        });
+        
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = 'block';
+    } else {
+        // Hide admin controls
+        document.body.classList.remove('logged-in');
+        adminControls.forEach(control => {
+            control.style.display = 'none';
+        });
+        
+        if (loginBtn) loginBtn.style.display = 'block';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+    }
+}
