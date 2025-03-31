@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengembang - Yearbook MA Ma'arif</title>
+    <title>Bangunan Sekolah - Yearbook MA Ma'arif Ketanggungan</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
@@ -18,9 +18,10 @@
                 <a href="index.html">Beranda</a>
                 <a href="teachers.html">Guru</a>
                 <a href="memories.html">Kenangan</a>
-                <a href="building.html">Bangunan</a>
-                <a href="developer.html" class="active">Pengembang</a>
+                <a href="building.html" class="active">Bangunan</a>
+                <a href="developer.html">Pengembang</a>
                 <button id="loginBtn" class="glass-btn small">Admin</button>
+                <button id="logoutBtn" class="glass-btn small" style="display: none;">Logout</button>
             </div>
             <div class="mobile-menu">
                 <span></span>
@@ -32,32 +33,33 @@
 
     <main>
         <section class="page-header">
-            <h1>Pengembang</h1>
-            <p>Terima kasih atas kebersamaan selama tiga tahun ini</p>
+            <h1>Bangunan Sekolah</h1>
+            <p>Tempat kami menimba ilmu dan menciptakan kenangan</p>
         </section>
 
-        <section class="developer-container">
-            <div class="developer-card glass-card">
-                <div class="developer-image">
-                    <img src="https://raw.githubusercontent.com/mamketa/ma-assets/refs/heads/main/images/developer.jpg" alt="A. Shohibul Ulum">
+        <section class="building-container">
+            <div class="building-main glass-card">
+                <div class="building-image" id="mainBuildingImage">
+                    <img src="https://via.placeholder.com/800x500" alt="Gedung Utama MA Ma'arif Ketanggungan">
                 </div>
-                <div class="developer-info">
-                    <h2>A. Shohibul Ulum</h2>
-                    <p class="developer-class">XII IPA 1</p>
-                    <p class="developer-role">Web Development</p>
-                    
-                    <div class="developer-contact">
-                        <h3>Kontak Skolah</h3>
-                        <p><strong>Email Sekolah:</strong> mamaarifktg@yahoo.com</p>
-                        <p><strong>No. Admin Sekolah:</strong> +628976724303</p>
+                <div class="building-info">
+                    <h2>MA Ma'arif Ketanggungan</h2>
+                    <p id="buildingDescription">Sekolah kami yang tercinta dengan fasilitas lengkap dan lingkungan yang asri, tempat kami menghabiskan tiga tahun penuh makna dalam menuntut ilmu dan mengembangkan diri.</p>
+                    <div class="admin-controls" style="display: none;">
+                        <button id="editBuilding" class="glass-btn small">Edit Deskripsi</button>
+                        <button id="changeMainImage" class="glass-btn small">Ganti Gambar</button>
                     </div>
                 </div>
             </div>
 
-            <div class="thank-you-message glass-card">
-                <h2>Terima Kasih</h2>
-                <p>"Atas tiga tahun kebersamaan ini, ribuan kenangan terukir indah. Setiap tawa, setiap air mata, setiap perjuangan bersama telah menjadi bagian dari cerita hidup kami. Terima kasih untuk semua guru yang telah membimbing, teman-teman yang telah menemani, dan sekolah yang telah menjadi rumah kedua kami. Kebersamaan ini takkan pernah terlupakan dan akan selalu menjadi bagian terindah dalam perjalanan hidup kami."</p>
-                <p>- Kelas XII IPA 1 -</p>
+            <div class="building-gallery">
+                <h3>Galeri Sekolah</h3>
+                <div class="gallery-grid" id="buildingGallery">
+                    <!-- Dynamic content -->
+                </div>
+                <div class="admin-controls" style="display: none;">
+                    <button id="addGalleryImage" class="glass-btn">Tambah Gambar</button>
+                </div>
             </div>
         </section>
     </main>
@@ -105,7 +107,243 @@
         </div>
     </div>
 
+    <!-- Edit Building Modal -->
+    <div id="editBuildingModal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close">&times;</span>
+            <h2>Edit Deskripsi Sekolah</h2>
+            <form id="buildingForm">
+                <div class="form-group">
+                    <label for="buildingDesc">Deskripsi</label>
+                    <textarea id="buildingDesc" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="glass-btn">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Gallery Image Modal -->
+    <div id="galleryModal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close">&times;</span>
+            <h2>Tambah Gambar Galeri</h2>
+            <form id="galleryForm">
+                <div class="form-group">
+                    <label for="galleryImage">Gambar</label>
+                    <input type="file" id="galleryImage" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label for="galleryCaption">Keterangan</label>
+                    <input type="text" id="galleryCaption">
+                </div>
+                <button type="submit" class="glass-btn">Simpan</button>
+            </form>
+        </div>
+    </div>
+
     <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // Store building data
+        let buildingData = {
+            mainImage: "https://via.placeholder.com/800x500",
+            description: "Sekolah kami yang tercinta dengan fasilitas lengkap dan lingkungan yang asri, tempat kami menghabiskan tiga tahun penuh makna dalam menuntut ilmu dan mengembangkan diri.",
+            gallery: [
+                { image: "https://via.placeholder.com/300x200", caption: "Gerbang Sekolah" },
+                { image: "https://via.placeholder.com/300x200", caption: "Perpustakaan" },
+                { image: "https://via.placeholder.com/300x200", caption: "Lapangan Olahraga" },
+                { image: "https://via.placeholder.com/300x200", caption: "Laboratorium IPA" },
+                { image: "https://via.placeholder.com/300x200", caption: "Aula Serbaguna" },
+                { image: "https://via.placeholder.com/300x200", caption: "Kantin Sekolah" }
+            ]
+        };
+
+        // Render building data
+        function renderBuildingData() {
+            // Set main image and description
+            document.getElementById('mainBuildingImage').querySelector('img').src = buildingData.mainImage;
+            document.getElementById('buildingDescription').textContent = buildingData.description;
+            
+            // Render gallery
+            const buildingGallery = document.getElementById('buildingGallery');
+            buildingGallery.innerHTML = '';
+            
+            buildingData.gallery.forEach((image, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item glass-card';
+                galleryItem.dataset.index = index;
+                
+                galleryItem.innerHTML = `
+                    <div class="gallery-image">
+                        <img src="${image.image}" alt="${image.caption}">
+                    </div>
+                    ${image.caption ? `<p class="gallery-caption">${image.caption}</p>` : ''}
+                    <div class="gallery-actions" style="display: none;">
+                        <button class="edit-gallery-item glass-btn small">Edit</button>
+                        <button class="delete-gallery-item glass-btn small danger">Hapus</button>
+                    </div>
+                `;
+                
+                // Add delete functionality
+                const deleteBtn = galleryItem.querySelector('.delete-gallery-item');
+                deleteBtn.addEventListener('click', function() {
+                    if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
+                        buildingData.gallery.splice(index, 1);
+                        renderBuildingData();
+                    }
+                });
+                
+                // Add edit functionality
+                const editBtn = galleryItem.querySelector('.edit-gallery-item');
+                editBtn.addEventListener('click', function() {
+                    document.getElementById('galleryModal').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Set current values in form
+                    document.getElementById('galleryCaption').value = image.caption;
+                    document.getElementById('galleryImage').required = false;
+                    
+                    // Store the index of the item being edited
+                    document.getElementById('galleryForm').dataset.editingIndex = index;
+                });
+                
+                buildingGallery.appendChild(galleryItem);
+            });
+
+            // Show admin controls if logged in
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                document.querySelectorAll('.admin-controls').forEach(control => {
+                    control.style.display = 'block';
+                });
+                
+                document.querySelectorAll('.gallery-actions').forEach(action => {
+                    action.style.display = 'block';
+                });
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderBuildingData();
+            
+            // Edit building description
+            const editBuildingBtn = document.getElementById('editBuilding');
+            const editBuildingModal = document.getElementById('editBuildingModal');
+            const buildingForm = document.getElementById('buildingForm');
+            
+            editBuildingBtn.addEventListener('click', function() {
+                document.getElementById('buildingDesc').value = buildingData.description;
+                editBuildingModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+            
+            buildingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                buildingData.description = document.getElementById('buildingDesc').value;
+                renderBuildingData();
+                editBuildingModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Change main image
+            document.getElementById('changeMainImage').addEventListener('click', function() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            buildingData.mainImage = event.target.result;
+                            renderBuildingData();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                
+                input.click();
+            });
+            
+            // Add/edit gallery image
+            const galleryForm = document.getElementById('galleryForm');
+            galleryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const imageFile = document.getElementById('galleryImage').files[0];
+                const caption = document.getElementById('galleryCaption').value;
+                const editingIndex = this.dataset.editingIndex;
+                
+                if (imageFile || editingIndex !== undefined) {
+                    const processImage = (imageSrc) => {
+                        if (editingIndex !== undefined) {
+                            // Update existing image
+                            buildingData.gallery[editingIndex] = {
+                                image: imageSrc || buildingData.gallery[editingIndex].image,
+                                caption: caption
+                            };
+                        } else {
+                            // Add new image
+                            buildingData.gallery.push({
+                                image: imageSrc,
+                                caption: caption
+                            });
+                        }
+                        
+                        renderBuildingData();
+                        document.getElementById('galleryModal').style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                        galleryForm.reset();
+                        delete galleryForm.dataset.editingIndex;
+                        document.getElementById('galleryImage').required = true;
+                    };
+                    
+                    if (imageFile) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            processImage(e.target.result);
+                        };
+                        reader.readAsDataURL(imageFile);
+                    } else {
+                        processImage();
+                    }
+                }
+            });
+            
+            // Close modals
+            document.querySelectorAll('.modal .close').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    
+                    // Reset gallery form if editing
+                    if (this.closest('.modal').id === 'galleryModal') {
+                        document.getElementById('galleryForm').reset();
+                        delete document.getElementById('galleryForm').dataset.editingIndex;
+                        document.getElementById('galleryImage').required = true;
+                    }
+                });
+            });
+            
+            // Close modals when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                        
+                        // Reset gallery form if editing
+                        if (this.id === 'galleryModal') {
+                            document.getElementById('galleryForm').reset();
+                            delete document.getElementById('galleryForm').dataset.editingIndex;
+                            document.getElementById('galleryImage').required = true;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
