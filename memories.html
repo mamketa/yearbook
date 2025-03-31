@@ -158,33 +158,42 @@
     <script src="js/admin.js"></script>
     <script src="js/main.js"></script>
     <script>
-        // Sample memories data
-        let memories = [
-            {
-                id: 1,
-                date: "2021-07-15",
-                title: "Hari Pertama Sekolah",
-                caption: "Mengawali perjalanan kami di MA Ma'arif Ketanggungan",
-                image: "https://via.placeholder.com/400x300",
-                year: 1
-            },
-            {
-                id: 2,
-                date: "2022-03-20",
-                title: "Kegiatan Outbound",
-                caption: "Belajar teamwork dan kekompakan di alam terbuka",
-                image: "https://via.placeholder.com/400x300",
-                year: 2
-            },
-            {
-                id: 3,
-                date: "2023-09-10",
-                title: "Persiapan Ujian",
-                caption: "Belajar bersama untuk menghadapi ujian akhir",
-                image: "https://via.placeholder.com/400x300",
-                year: 3
-            }
-        ];
+        // Load/save functions for memories
+        function loadMemories() {
+            const saved = localStorage.getItem('yearbookMemories');
+            return saved ? JSON.parse(saved) : [
+                {
+                    id: 1,
+                    date: "2021-07-15",
+                    title: "Hari Pertama Sekolah",
+                    caption: "Mengawali perjalanan kami di MA Ma'arif Ketanggungan",
+                    image: "https://via.placeholder.com/400x300",
+                    year: 1
+                },
+                {
+                    id: 2,
+                    date: "2022-03-20",
+                    title: "Kegiatan Outbound",
+                    caption: "Belajar teamwork dan kekompakan di alam terbuka",
+                    image: "https://via.placeholder.com/400x300",
+                    year: 2
+                },
+                {
+                    id: 3,
+                    date: "2023-09-10",
+                    title: "Persiapan Ujian",
+                    caption: "Belajar bersama untuk menghadapi ujian akhir",
+                    image: "https://via.placeholder.com/400x300",
+                    year: 3
+                }
+            ];
+        }
+
+        function saveMemories() {
+            localStorage.setItem('yearbookMemories', JSON.stringify(memories));
+        }
+
+        let memories = loadMemories();
 
         // Render memories
         function renderMemories() {
@@ -208,7 +217,7 @@
                         <div class="memory-year">Tahun ${memory.year}</div>
                         <div class="memory-actions" style="display: none;">
                             <button class="edit-memory glass-btn small">Edit</button>
-                            <button class="delete-memory glass-btn small">Hapus</button>
+                            <button class="delete-memory glass-btn small danger">Hapus</button>
                         </div>
                     </div>
                 `;
@@ -216,7 +225,6 @@
                 memoriesGrid.appendChild(memoryCard);
             });
 
-            // Show/hide edit/delete buttons based on login status
             toggleMemoryActions();
         }
 
@@ -252,10 +260,18 @@
                 action.style.display = isLoggedIn ? 'flex' : 'none';
             });
 
-            // Toggle admin controls
             const adminControls = document.querySelector('.admin-controls');
             if (adminControls) {
                 adminControls.style.display = isLoggedIn ? 'flex' : 'none';
+            }
+
+            // Toggle login/logout buttons
+            if (isLoggedIn) {
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('loginBtn').style.display = 'inline-block';
+                document.getElementById('logoutBtn').style.display = 'none';
             }
         }
 
@@ -288,6 +304,7 @@
             document.getElementById('addMemory').addEventListener('click', function() {
                 document.getElementById('memoryModalTitle').textContent = 'Tambah Kenangan';
                 document.getElementById('memoryForm').reset();
+                document.getElementById('memoryId').value = '';
                 document.getElementById('currentImageContainer').style.display = 'none';
                 document.getElementById('memoryModal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
@@ -317,10 +334,12 @@
                             const reader = new FileReader();
                             reader.onload = function(e) {
                                 memories[memoryIndex].image = e.target.result;
+                                saveMemories();
                                 renderMemories();
                             };
                             reader.readAsDataURL(memoryImageInput.files[0]);
                         } else {
+                            saveMemories();
                             renderMemories();
                         }
                     }
@@ -340,11 +359,11 @@
                                 year: parseInt(memoryYear)
                             };
                             memories.push(newMemory);
+                            saveMemories();
                             renderMemories();
                         };
                         reader.readAsDataURL(memoryImageInput.files[0]);
                     } else {
-                        // Default image if no image is selected
                         const newMemory = {
                             id: newId,
                             date: memoryDate,
@@ -354,13 +373,15 @@
                             year: parseInt(memoryYear)
                         };
                         memories.push(newMemory);
+                        saveMemories();
                         renderMemories();
                     }
                 }
                 
-                // Close modal
+                // Close modal and reset form
                 document.getElementById('memoryModal').style.display = 'none';
                 document.body.style.overflow = 'auto';
+                document.getElementById('memoryForm').reset();
             });
 
             // Handle edit and delete buttons
@@ -378,12 +399,10 @@
                         document.getElementById('memoryCaption').value = memory.caption;
                         document.getElementById('memoryYear').value = memory.year;
                         
-                        // Show current image
                         document.getElementById('currentImageContainer').style.display = 'block';
                         document.getElementById('currentImage').src = memory.image;
                         
-                        const memoryModal = document.getElementById('memoryModal');
-                        memoryModal.style.display = 'flex';
+                        document.getElementById('memoryModal').style.display = 'flex';
                         document.body.style.overflow = 'hidden';
                     }
                 }
@@ -393,10 +412,8 @@
                         const memoryCard = e.target.closest('.memory-card');
                         const memoryId = parseInt(memoryCard.dataset.id);
                         
-                        // Remove from array
                         memories = memories.filter(m => m.id !== memoryId);
-                        
-                        // Re-render
+                        saveMemories();
                         renderMemories();
                     }
                 }
