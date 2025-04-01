@@ -20,9 +20,6 @@
         .admin-controls {
             margin-left: auto;
         }
-        .logged-in .admin-controls {
-            display: flex !important;
-        }
     </style>
 </head>
 <body>
@@ -75,7 +72,7 @@
         <div class="footer-content">
             <div class="footer-info">
                 <h4>Yearbook XII IPA 1</h4>
-                <p>MA Ma'arif Ketanggungan </p>
+                <p>MA Ma'arif Ketanggungan</p>
                 <p>Tahun Ajaran 2024/2025</p>
             </div>
             <div class="footer-links">
@@ -121,6 +118,7 @@
             <h2 id="memoryModalTitle">Tambah Kenangan</h2>
             <form id="memoryForm">
                 <input type="hidden" id="memoryId">
+                <input type="hidden" id="memoryImagePath">
                 <div class="form-group">
                     <label for="memoryDate">Tanggal</label>
                     <input type="date" id="memoryDate" required>
@@ -158,6 +156,11 @@
     <script src="js/admin.js"></script>
     <script src="js/main.js"></script>
     <script>
+        // Configuration
+        const BASE_IMAGE_PATH = 'images/memories/';
+        const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+        const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/400x300';
+
         // Load/save functions for memories
         function loadMemories() {
             const saved = localStorage.getItem('yearbookMemories');
@@ -167,7 +170,7 @@
                     date: "2021-07-15",
                     title: "Hari Pertama Sekolah",
                     caption: "Mengawali perjalanan kami di MA Ma'arif Ketanggungan",
-                    image: "https://via.placeholder.com/400x300",
+                    image: BASE_IMAGE_PATH + "memory-day1.jpg",
                     year: 1
                 },
                 {
@@ -175,7 +178,7 @@
                     date: "2022-03-20",
                     title: "Kegiatan Outbound",
                     caption: "Belajar teamwork dan kekompakan di alam terbuka",
-                    image: "https://via.placeholder.com/400x300",
+                    image: BASE_IMAGE_PATH + "memory-outbound.jpg",
                     year: 2
                 },
                 {
@@ -183,7 +186,7 @@
                     date: "2023-09-10",
                     title: "Persiapan Ujian",
                     caption: "Belajar bersama untuk menghadapi ujian akhir",
-                    image: "https://via.placeholder.com/400x300",
+                    image: BASE_IMAGE_PATH + "memory-study.jpg",
                     year: 3
                 }
             ];
@@ -191,6 +194,19 @@
 
         function saveMemories() {
             localStorage.setItem('yearbookMemories', JSON.stringify(memories));
+        }
+
+        function validateImage(file) {
+            if (file.size > MAX_IMAGE_SIZE) {
+                alert('Ukuran gambar terlalu besar. Maksimal 2MB');
+                return false;
+            }
+            return true;
+        }
+
+        function generateImageName(file) {
+            const ext = file.name.split('.').pop();
+            return `memory-${Date.now()}.${ext}`;
         }
 
         let memories = loadMemories();
@@ -208,7 +224,7 @@
                 
                 memoryCard.innerHTML = `
                     <div class="memory-image">
-                        <img src="${memory.image}" alt="${memory.title}">
+                        <img src="${memory.image}" alt="${memory.title || 'Kenangan'}" onerror="this.src='${PLACEHOLDER_IMAGE}'">
                     </div>
                     <div class="memory-content">
                         <div class="memory-date">${formatDate(memory.date)}</div>
@@ -222,6 +238,33 @@
                     </div>
                 `;
                 
+                // Add delete functionality
+                memoryCard.querySelector('.delete-memory').addEventListener('click', function() {
+                    if (confirm('Apakah Anda yakin ingin menghapus kenangan ini?')) {
+                        memories = memories.filter(m => m.id !== memory.id);
+                        saveMemories();
+                        renderMemories();
+                    }
+                });
+                
+                // Add edit functionality
+                memoryCard.querySelector('.edit-memory').addEventListener('click', function() {
+                    document.getElementById('memoryModalTitle').textContent = 'Edit Kenangan';
+                    document.getElementById('memoryId').value = memory.id;
+                    document.getElementById('memoryDate').value = memory.date;
+                    document.getElementById('memoryTitle').value = memory.title;
+                    document.getElementById('memoryCaption').value = memory.caption;
+                    document.getElementById('memoryYear').value = memory.year;
+                    document.getElementById('memoryImagePath').value = memory.image;
+                    
+                    // Show current image
+                    document.getElementById('currentImageContainer').style.display = 'block';
+                    document.getElementById('currentImage').src = memory.image;
+                    
+                    document.getElementById('memoryModal').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                });
+                
                 memoriesGrid.appendChild(memoryCard);
             });
 
@@ -234,14 +277,9 @@
         }
 
         function filterMemories(year) {
-            const memories = document.querySelectorAll('.memory-card');
-            
-            memories.forEach(memory => {
-                if (year === 'all' || memory.dataset.year == year) {
-                    memory.style.display = 'block';
-                } else {
-                    memory.style.display = 'none';
-                }
+            const memoryCards = document.querySelectorAll('.memory-card');
+            memoryCards.forEach(card => {
+                card.style.display = (year === 'all' || card.dataset.year == year) ? 'block' : 'none';
             });
         }
 
@@ -254,25 +292,15 @@
 
         function toggleMemoryActions() {
             const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
-            const actions = document.querySelectorAll('.memory-actions');
             
-            actions.forEach(action => {
-                action.style.display = isLoggedIn ? 'flex' : 'none';
+            // Toggle action buttons
+            document.querySelectorAll('.memory-actions, .admin-controls').forEach(el => {
+                el.style.display = isLoggedIn ? 'flex' : 'none';
             });
-
-            const adminControls = document.querySelector('.admin-controls');
-            if (adminControls) {
-                adminControls.style.display = isLoggedIn ? 'flex' : 'none';
-            }
-
+            
             // Toggle login/logout buttons
-            if (isLoggedIn) {
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('logoutBtn').style.display = 'inline-block';
-            } else {
-                document.getElementById('loginBtn').style.display = 'inline-block';
-                document.getElementById('logoutBtn').style.display = 'none';
-            }
+            document.getElementById('loginBtn').style.display = isLoggedIn ? 'none' : 'inline-block';
+            document.getElementById('logoutBtn').style.display = isLoggedIn ? 'inline-block' : 'none';
         }
 
         // Initialize the page
@@ -305,13 +333,14 @@
                 document.getElementById('memoryModalTitle').textContent = 'Tambah Kenangan';
                 document.getElementById('memoryForm').reset();
                 document.getElementById('memoryId').value = '';
+                document.getElementById('memoryImagePath').value = '';
                 document.getElementById('currentImageContainer').style.display = 'none';
                 document.getElementById('memoryModal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             });
 
             // Handle memory form submission
-            document.getElementById('memoryForm').addEventListener('submit', function(e) {
+            document.getElementById('memoryForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const memoryId = document.getElementById('memoryId').value;
@@ -320,127 +349,59 @@
                 const memoryCaption = document.getElementById('memoryCaption').value;
                 const memoryYear = document.getElementById('memoryYear').value;
                 const memoryImageInput = document.getElementById('memoryImage');
+                const existingPath = document.getElementById('memoryImagePath').value;
                 
-                if (memoryId) {
-                    // Edit existing memory
-                    const memoryIndex = memories.findIndex(m => m.id === parseInt(memoryId));
-                    if (memoryIndex !== -1) {
-                        memories[memoryIndex].date = memoryDate;
-                        memories[memoryIndex].title = memoryTitle;
-                        memories[memoryIndex].caption = memoryCaption;
-                        memories[memoryIndex].year = parseInt(memoryYear);
-                        
-                        if (memoryImageInput.files[0]) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                memories[memoryIndex].image = e.target.result;
-                                saveMemories();
-                                renderMemories();
-                            };
-                            reader.readAsDataURL(memoryImageInput.files[0]);
-                        } else {
-                            saveMemories();
-                            renderMemories();
-                        }
-                    }
-                } else {
-                    // Add new memory
-                    const newId = memories.length > 0 ? Math.max(...memories.map(m => m.id)) + 1 : 1;
+                const memoryData = {
+                    id: memoryId || Date.now(),
+                    date: memoryDate,
+                    title: memoryTitle,
+                    caption: memoryCaption,
+                    year: parseInt(memoryYear),
+                    image: existingPath || PLACEHOLDER_IMAGE
+                };
+
+                if (memoryImageInput.files[0]) {
+                    if (!validateImage(memoryImageInput.files[0])) return;
                     
-                    if (memoryImageInput.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const newMemory = {
-                                id: newId,
-                                date: memoryDate,
-                                title: memoryTitle,
-                                caption: memoryCaption,
-                                image: e.target.result,
-                                year: parseInt(memoryYear)
-                            };
-                            memories.push(newMemory);
-                            saveMemories();
-                            renderMemories();
-                        };
-                        reader.readAsDataURL(memoryImageInput.files[0]);
-                    } else {
-                        const newMemory = {
-                            id: newId,
-                            date: memoryDate,
-                            title: memoryTitle,
-                            caption: memoryCaption,
-                            image: "https://via.placeholder.com/400x300",
-                            year: parseInt(memoryYear)
-                        };
-                        memories.push(newMemory);
-                        saveMemories();
-                        renderMemories();
-                    }
+                    // Generate unique filename
+                    const fileName = generateImageName(memoryImageInput.files[0]);
+                    memoryData.image = BASE_IMAGE_PATH + fileName;
+                    
+                    // In production, you would upload the image to GitHub here
+                    // For now, we'll just store the path
                 }
+
+                // Update or add memory
+                if (memoryId) {
+                    const index = memories.findIndex(m => m.id == memoryId);
+                    memories[index] = memoryData;
+                } else {
+                    memories.push(memoryData);
+                }
+
+                saveMemories();
+                renderMemories();
                 
                 // Close modal and reset form
-                document.getElementById('memoryModal').style.display = 'none';
+                this.closest('.modal').style.display = 'none';
                 document.body.style.overflow = 'auto';
-                document.getElementById('memoryForm').reset();
+                this.reset();
             });
 
-            // Handle edit and delete buttons
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('edit-memory')) {
-                    const memoryCard = e.target.closest('.memory-card');
-                    const memoryId = parseInt(memoryCard.dataset.id);
-                    const memory = memories.find(m => m.id === memoryId);
-                    
-                    if (memory) {
-                        document.getElementById('memoryModalTitle').textContent = 'Edit Kenangan';
-                        document.getElementById('memoryId').value = memory.id;
-                        document.getElementById('memoryDate').value = memory.date;
-                        document.getElementById('memoryTitle').value = memory.title;
-                        document.getElementById('memoryCaption').value = memory.caption;
-                        document.getElementById('memoryYear').value = memory.year;
-                        
-                        document.getElementById('currentImageContainer').style.display = 'block';
-                        document.getElementById('currentImage').src = memory.image;
-                        
-                        document.getElementById('memoryModal').style.display = 'flex';
-                        document.body.style.overflow = 'hidden';
+            // Close modals
+            document.querySelectorAll('.modal .close, .modal').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    if (e.target === this || e.target.classList.contains('close')) {
+                        this.closest('.modal').style.display = 'none';
+                        document.body.style.overflow = 'auto';
                     }
-                }
-                
-                if (e.target.classList.contains('delete-memory')) {
-                    if (confirm('Apakah Anda yakin ingin menghapus kenangan ini?')) {
-                        const memoryCard = e.target.closest('.memory-card');
-                        const memoryId = parseInt(memoryCard.dataset.id);
-                        
-                        memories = memories.filter(m => m.id !== memoryId);
-                        saveMemories();
-                        renderMemories();
-                    }
-                }
-            });
-
-            // Close modal when clicking X or outside
-            document.querySelectorAll('.modal .close').forEach(closeBtn => {
-                closeBtn.addEventListener('click', function() {
-                    this.closest('.modal').style.display = 'none';
-                    document.body.style.overflow = 'auto';
                 });
             });
-
-            window.addEventListener('click', function(event) {
-                if (event.target.classList.contains('modal')) {
-                    event.target.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }
-            });
-
+            
             // Logout button
             document.getElementById('logoutBtn').addEventListener('click', function() {
                 sessionStorage.removeItem('isLoggedIn');
-                document.body.classList.remove('logged-in');
                 toggleMemoryActions();
-                this.style.display = 'none';
-                document.getElementById('loginBtn').style.display = 'inline-block';
             });
         });
     </script>
