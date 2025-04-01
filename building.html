@@ -7,6 +7,20 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
+    <style>
+        .gallery-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .gallery-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .admin-controls {
+            margin-left: auto;
+        }
+    </style>
 </head>
 <body>
     <div class="background-blur"></div>
@@ -128,6 +142,7 @@
             <span class="close">&times;</span>
             <h2>Tambah Gambar Galeri</h2>
             <form id="galleryForm">
+                <input type="hidden" id="galleryImagePath">
                 <div class="form-group">
                     <label for="galleryImage">Gambar</label>
                     <input type="file" id="galleryImage" accept="image/*" required>
@@ -145,6 +160,10 @@
     <script src="js/admin.js"></script>
     <script src="js/main.js"></script>
     <script>
+        // Configuration
+        const BASE_IMAGE_PATH = 'images/memories/';
+        const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+
         // Load/save functions for building data
         function loadBuildingData() {
             const saved = localStorage.getItem('yearbookBuildingData');
@@ -152,12 +171,12 @@
                 mainImage: "https://via.placeholder.com/800x500",
                 description: "Sekolah kami yang tercinta dengan fasilitas lengkap dan lingkungan yang asri, tempat kami menghabiskan tiga tahun penuh makna dalam menuntut ilmu dan mengembangkan diri.",
                 gallery: [
-                    { image: "https://via.placeholder.com/300x200", caption: "Gerbang Sekolah" },
-                    { image: "https://via.placeholder.com/300x200", caption: "Perpustakaan" },
-                    { image: "https://via.placeholder.com/300x200", caption: "Lapangan Olahraga" },
-                    { image: "https://via.placeholder.com/300x200", caption: "Laboratorium IPA" },
-                    { image: "https://via.placeholder.com/300x200", caption: "Aula Serbaguna" },
-                    { image: "https://via.placeholder.com/300x200", caption: "Kantin Sekolah" }
+                    { image: BASE_IMAGE_PATH + "gerbang.jpg", caption: "Gerbang Sekolah" },
+                    { image: BASE_IMAGE_PATH + "perpustakaan.jpg", caption: "Perpustakaan" },
+                    { image: BASE_IMAGE_PATH + "lapangan.jpg", caption: "Lapangan Olahraga" },
+                    { image: BASE_IMAGE_PATH + "lab.jpg", caption: "Laboratorium IPA" },
+                    { image: BASE_IMAGE_PATH + "aula.jpg", caption: "Aula Serbaguna" },
+                    { image: BASE_IMAGE_PATH + "kantin.jpg", caption: "Kantin Sekolah" }
                 ]
             };
         }
@@ -166,12 +185,30 @@
             localStorage.setItem('yearbookBuildingData', JSON.stringify(buildingData));
         }
 
+        function validateImage(file) {
+            if (file.size > MAX_IMAGE_SIZE) {
+                alert('Ukuran gambar terlalu besar. Maksimal 2MB');
+                return false;
+            }
+            return true;
+        }
+
+        function generateImageName(file, prefix = "building") {
+            const ext = file.name.split('.').pop();
+            return `${prefix}-${Date.now()}.${ext}`;
+        }
+
         let buildingData = loadBuildingData();
 
         // Render building data
         function renderBuildingData() {
             // Set main image and description
-            document.getElementById('mainBuildingImage').querySelector('img').src = buildingData.mainImage;
+            const mainImg = document.getElementById('mainBuildingImage').querySelector('img');
+            mainImg.src = buildingData.mainImage;
+            mainImg.onerror = function() {
+                this.src = "https://via.placeholder.com/800x500";
+            };
+            
             document.getElementById('buildingDescription').textContent = buildingData.description;
             
             // Render gallery
@@ -185,7 +222,7 @@
                 
                 galleryItem.innerHTML = `
                     <div class="gallery-image">
-                        <img src="${image.image}" alt="${image.caption}">
+                        <img src="${image.image}" alt="${image.caption || 'Gambar Sekolah'}" onerror="this.src='https://via.placeholder.com/300x200'">
                     </div>
                     ${image.caption ? `<p class="gallery-caption">${image.caption}</p>` : ''}
                     <div class="gallery-actions" style="display: none;">
@@ -195,8 +232,7 @@
                 `;
                 
                 // Add delete functionality
-                const deleteBtn = galleryItem.querySelector('.delete-gallery-item');
-                deleteBtn.addEventListener('click', function() {
+                galleryItem.querySelector('.delete-gallery-item').addEventListener('click', function() {
                     if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
                         buildingData.gallery.splice(index, 1);
                         saveBuildingData();
@@ -205,16 +241,14 @@
                 });
                 
                 // Add edit functionality
-                const editBtn = galleryItem.querySelector('.edit-gallery-item');
-                editBtn.addEventListener('click', function() {
+                galleryItem.querySelector('.edit-gallery-item').addEventListener('click', function() {
                     document.getElementById('galleryModal').style.display = 'flex';
                     document.body.style.overflow = 'hidden';
                     
-                    // Set current values in form
+                    // Set current values
                     document.getElementById('galleryCaption').value = image.caption;
+                    document.getElementById('galleryImagePath').value = image.image;
                     document.getElementById('galleryImage').required = false;
-                    
-                    // Store the index of the item being edited
                     document.getElementById('galleryForm').dataset.editingIndex = index;
                 });
                 
@@ -222,15 +256,12 @@
             });
 
             // Show admin controls if logged in
-            if (sessionStorage.getItem('isLoggedIn') === 'true') {
-                document.querySelectorAll('.admin-controls').forEach(control => {
-                    control.style.display = 'block';
-                });
-                
-                document.querySelectorAll('.gallery-actions').forEach(action => {
-                    action.style.display = 'block';
-                });
-            }
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+            document.querySelectorAll('.admin-controls, .gallery-actions').forEach(el => {
+                el.style.display = isLoggedIn ? 'flex' : 'none';
+            });
+            document.getElementById('loginBtn').style.display = isLoggedIn ? 'none' : 'inline-block';
+            document.getElementById('logoutBtn').style.display = isLoggedIn ? 'inline-block' : 'none';
         }
 
         // Initialize the page
@@ -238,22 +269,18 @@
             renderBuildingData();
             
             // Edit building description
-            const editBuildingBtn = document.getElementById('editBuilding');
-            const editBuildingModal = document.getElementById('editBuildingModal');
-            const buildingForm = document.getElementById('buildingForm');
-            
-            editBuildingBtn.addEventListener('click', function() {
+            document.getElementById('editBuilding').addEventListener('click', function() {
                 document.getElementById('buildingDesc').value = buildingData.description;
-                editBuildingModal.style.display = 'flex';
+                document.getElementById('editBuildingModal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             });
             
-            buildingForm.addEventListener('submit', function(e) {
+            document.getElementById('buildingForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 buildingData.description = document.getElementById('buildingDesc').value;
                 saveBuildingData();
                 renderBuildingData();
-                editBuildingModal.style.display = 'none';
+                this.closest('.modal').style.display = 'none';
                 document.body.style.overflow = 'auto';
             });
             
@@ -265,17 +292,16 @@
                 
                 input.onchange = function(e) {
                     const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            buildingData.mainImage = event.target.result;
-                            saveBuildingData();
-                            renderBuildingData();
-                        };
-                        reader.readAsDataURL(file);
-                    }
+                    if (!file || !validateImage(file)) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        buildingData.mainImage = event.target.result;
+                        saveBuildingData();
+                        renderBuildingData();
+                    };
+                    reader.readAsDataURL(file);
                 };
-                
                 input.click();
             });
             
@@ -284,86 +310,67 @@
                 document.getElementById('galleryModal').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
                 document.getElementById('galleryForm').reset();
+                document.getElementById('galleryImagePath').value = '';
                 delete document.getElementById('galleryForm').dataset.editingIndex;
-                document.getElementById('galleryImage').required = true;
             });
             
-            // Add/edit gallery image
-            const galleryForm = document.getElementById('galleryForm');
-            galleryForm.addEventListener('submit', function(e) {
+            // Handle gallery form submission
+            document.getElementById('galleryForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
                 const imageFile = document.getElementById('galleryImage').files[0];
                 const caption = document.getElementById('galleryCaption').value;
                 const editingIndex = this.dataset.editingIndex;
+                const existingPath = document.getElementById('galleryImagePath').value;
                 
-                if (imageFile || editingIndex !== undefined) {
-                    const processImage = (imageSrc) => {
+                if (imageFile) {
+                    if (!validateImage(imageFile)) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageData = {
+                            image: existingPath || BASE_IMAGE_PATH + generateImageName(imageFile),
+                            caption: caption
+                        };
+                        
                         if (editingIndex !== undefined) {
-                            // Update existing image
-                            buildingData.gallery[editingIndex] = {
-                                image: imageSrc || buildingData.gallery[editingIndex].image,
-                                caption: caption
-                            };
+                            buildingData.gallery[editingIndex] = imageData;
                         } else {
-                            // Add new image
-                            buildingData.gallery.push({
-                                image: imageSrc,
-                                caption: caption
-                            });
+                            buildingData.gallery.push(imageData);
                         }
                         
                         saveBuildingData();
                         renderBuildingData();
-                        document.getElementById('galleryModal').style.display = 'none';
+                        e.target.closest('.modal').style.display = 'none';
                         document.body.style.overflow = 'auto';
-                        galleryForm.reset();
-                        delete galleryForm.dataset.editingIndex;
-                        document.getElementById('galleryImage').required = true;
                     };
-                    
-                    if (imageFile) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            processImage(e.target.result);
-                        };
-                        reader.readAsDataURL(imageFile);
-                    } else {
-                        processImage();
+                    reader.readAsDataURL(imageFile);
+                } else if (existingPath) {
+                    // Only update caption if no new image
+                    if (editingIndex !== undefined) {
+                        buildingData.gallery[editingIndex].caption = caption;
+                        saveBuildingData();
+                        renderBuildingData();
+                        this.closest('.modal').style.display = 'none';
+                        document.body.style.overflow = 'auto';
                     }
                 }
             });
             
             // Close modals
-            document.querySelectorAll('.modal .close').forEach(closeBtn => {
-                closeBtn.addEventListener('click', function() {
-                    this.closest('.modal').style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                    
-                    // Reset gallery form if editing
-                    if (this.closest('.modal').id === 'galleryModal') {
-                        document.getElementById('galleryForm').reset();
-                        delete document.getElementById('galleryForm').dataset.editingIndex;
-                        document.getElementById('galleryImage').required = true;
+            document.querySelectorAll('.modal .close, .modal').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    if (e.target === this || e.target.classList.contains('close')) {
+                        this.closest('.modal').style.display = 'none';
+                        document.body.style.overflow = 'auto';
                     }
                 });
             });
             
-            // Close modals when clicking outside
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.style.display = 'none';
-                        document.body.style.overflow = 'auto';
-                        
-                        // Reset gallery form if editing
-                        if (this.id === 'galleryModal') {
-                            document.getElementById('galleryForm').reset();
-                            delete document.getElementById('galleryForm').dataset.editingIndex;
-                            document.getElementById('galleryImage').required = true;
-                        }
-                    }
-                });
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                sessionStorage.removeItem('isLoggedIn');
+                renderBuildingData();
             });
         });
     </script>
